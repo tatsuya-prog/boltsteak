@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ボルトステーキ | 鹿沼の本格ステーキ店</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #b5121b;
+    --dark-red: #7a0a10;
+    --gold: #c9922a;
+    --light-gold: #e8b84b;
+    --black: #0e0b08;
+    --dark: #1a1410;
+    --charcoal: #2c2420;
+    --smoke: #3d3530;
+    --cream: #f5efe6;
+    --text: #ede5d8;
+    --muted: #a09080;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--text); font-family: 'Noto Sans JP', sans-serif; overflow-x: hidden; }
+
+  /* ナビ */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: rgba(14,11,8,0.95); backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(201,146,42,0.25);
+    padding: 0 5vw; display: flex; align-items: center; justify-content: space-between; height: 60px;
+  }
+  .nav-logo { font-family: 'Bebas Neue', cursive; font-size: 24px; color: var(--gold); letter-spacing: 3px; text-decoration: none; }
+  .nav-logo .bolt { color: var(--red); }
+  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-tel { font-size: 15px; color: var(--gold); text-decoration: none; border: 1px solid var(--gold); padding: 6px 14px; transition: all 0.2s; }
+  .nav-tel:hover { background: var(--gold); color: var(--black); }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: var(--gold); }
+
+  /* お知らせバナー */
+  #notice-banner { margin-top: 60px; background: var(--dark-red); }
+  .notice-list { max-width: 1100px; margin: 0 auto; padding: 0 5vw; }
+  .notice-item {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.12);
+    font-size: 14px; line-height: 1.7;
+  }
+  .notice-item:last-child { border-bottom: none; }
+  .notice-date { font-size: 12px; color: rgba(255,255,255,0.55); white-space: nowrap; padding-top: 3px; min-width: 90px; }
+  .notice-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 2px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .tag-important { background: #ff6b35; color: #fff; }
+  .tag-hours    { background: var(--gold); color: var(--black); }
+  .tag-closed   { background: #555; color: #fff; }
+  .tag-info     { background: #2a6a9e; color: #fff; }
+  .notice-text  { color: #fff; flex: 1; }
+
+  /* ヒーロー */
+  #hero { min-height: 92vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: rgba(10, 6, 3, 0.50);
+    background-image: linear-gradient(rgba(201,146,42,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,146,42,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content { position: relative; z-index: 1; text-align: center; padding: 0 20px; }
+  .hero-catch { font-size: 13px; letter-spacing: 4px; color: var(--gold); margin-bottom: 20px; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
+  .hero-title { font-family: 'Bebas Neue', cursive; font-size: clamp(72px, 15vw, 150px); line-height: 0.9; letter-spacing: 8px; color: var(--cream); opacity: 0; animation: fadeUp 0.8s 0.4s forwards; }
+  .hero-title .bolt { color: var(--red); animation: flicker 3s 2s infinite; display: inline-block; }
+  .hero-sub { font-size: clamp(16px, 3vw, 22px); letter-spacing: 4px; color: var(--gold); margin-top: 10px; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
+  .hero-tagline { margin-top: 28px; font-size: 15px; line-height: 2.2; color: var(--muted); opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
+  .hero-btns { margin-top: 44px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.8s 1s forwards; }
+  .btn-primary { font-size: 14px; letter-spacing: 2px; background: var(--red); color: #fff; border: none; padding: 16px 40px; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.2s, transform 0.15s; clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); }
+  .btn-primary:hover { background: var(--dark-red); transform: translateY(-2px); }
+  .btn-secondary { font-size: 14px; letter-spacing: 2px; background: transparent; color: var(--gold); border: 1px solid var(--gold); padding: 16px 40px; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); }
+  .btn-secondary:hover { background: var(--gold); color: var(--black); transform: translateY(-2px); }
+
+  /* 共通 */
+  section { padding: 88px 5vw; }
+  .sec-label { font-size: 11px; letter-spacing: 4px; color: var(--gold); margin-bottom: 8px; }
+  .sec-title { font-family: 'Bebas Neue', cursive; font-size: clamp(40px, 6vw, 64px); letter-spacing: 3px; color: var(--cream); margin-bottom: 8px; }
+  .sec-divider { width: 50px; height: 3px; background: var(--red); margin: 12px 0 40px; }
+
+  /* お店について */
+  #about { background: var(--dark); position: relative; overflow: hidden; }
+  #about::before { content: 'STEAK'; position: absolute; right: -60px; top: 50%; transform: translateY(-50%); font-family: 'Bebas Neue', cursive; font-size: 220px; color: rgba(201,146,42,0.04); pointer-events: none; }
+  .about-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
+  .about-text p { font-size: 15px; line-height: 2.2; color: var(--muted); margin-bottom: 18px; }
+  .about-text p strong { color: var(--cream); font-weight: 700; }
+  .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .stat-card { background: var(--charcoal); padding: 28px 20px; border-top: 3px solid var(--red); transition: border-color 0.2s; }
+  .stat-card:hover { border-color: var(--gold); }
+  .stat-num { font-family: 'Bebas Neue', cursive; font-size: 52px; color: var(--gold); line-height: 1; }
+  .stat-unit { font-size: 15px; color: var(--muted); }
+  .stat-lbl { margin-top: 6px; font-size: 12px; color: var(--muted); }
+
+  /* メニュー */
+  #menu { background: var(--black); }
+  .menu-header { max-width: 1100px; margin: 0 auto 48px; }
+  .menu-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 40px; max-width: 1100px; margin-left: auto; margin-right: auto; }
+  .tab-btn { font-size: 13px; background: var(--charcoal); color: var(--muted); border: none; padding: 12px 20px; cursor: pointer; transition: all 0.2s; }
+  .tab-btn.active { background: var(--red); color: #fff; }
+  .tab-btn:hover:not(.active) { background: var(--smoke); color: var(--cream); }
+  .menu-panel { display: none; max-width: 1100px; margin: 0 auto; }
+  .menu-panel.active { display: block; }
+  .menu-cat-title { font-family: 'Bebas Neue', cursive; font-size: 26px; letter-spacing: 2px; color: var(--gold); border-bottom: 1px solid var(--charcoal); padding-bottom: 8px; margin: 32px 0 14px; }
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2px; }
+  .menu-card { background: var(--charcoal); padding: 18px; display: flex; justify-content: space-between; align-items: flex-start; transition: background 0.2s; position: relative; overflow: hidden; gap: 12px; }
+  .menu-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--red); transform: scaleY(0); transform-origin: bottom; transition: transform 0.2s; }
+  .menu-card:hover { background: var(--smoke); }
+  .menu-card:hover::before { transform: scaleY(1); }
+  .menu-name { font-size: 14px; font-weight: 700; color: var(--cream); line-height: 1.5; }
+  .menu-desc { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+  .menu-price-wrap { text-align: right; flex-shrink: 0; }
+  .menu-price { font-family: 'Bebas Neue', cursive; font-size: 20px; color: var(--gold); white-space: nowrap; }
+  .tax-label { display: block; font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .menu-tag { display: inline-block; background: var(--red); color: #fff; font-size: 10px; padding: 2px 7px; margin-top: 5px; }
+  .menu-note { font-size: 12px; color: var(--muted); text-align: right; margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--charcoal); max-width: 1100px; margin-left: auto; margin-right: auto; }
+  .lunch-include { background: var(--charcoal); border-left: 3px solid var(--gold); padding: 14px 18px; margin-bottom: 24px; font-size: 13px; color: var(--muted); }
+  .lunch-include strong { color: var(--gold); }
+
+  /* 営業案内 */
+  #info { background: var(--dark); }
+  .info-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .info-block { background: var(--charcoal); padding: 44px 36px; }
+  .info-block-title { font-family: 'Bebas Neue', cursive; font-size: 26px; letter-spacing: 2px; color: var(--gold); margin-bottom: 22px; }
+  .info-row { display: flex; gap: 20px; padding: 13px 0; border-bottom: 1px solid var(--smoke); font-size: 14px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { font-size: 11px; color: var(--muted); min-width: 76px; padding-top: 2px; }
+  .info-value { color: var(--cream); line-height: 1.9; }
+  .info-value a { color: var(--gold); text-decoration: none; }
+  .info-value a:hover { text-decoration: underline; }
+  .closed { color: var(--red); font-weight: 700; }
+  .map-wrap { background: var(--smoke); overflow: hidden; }
+  .map-wrap iframe { width: 100%; height: calc(100% - 44px); min-height: 280px; border: none; filter: grayscale(50%); display: block; }
+  .map-footer { padding: 10px 18px; background: var(--smoke); font-size: 12px; color: var(--muted); }
+  .map-footer a { color: var(--gold); text-decoration: none; }
+
+  /* お問い合わせ */
+  #contact { background: var(--black); text-align: center; }
+  .contact-inner { max-width: 560px; margin: 0 auto; }
+  .contact-tel { font-family: 'Bebas Neue', cursive; font-size: clamp(44px, 8vw, 72px); letter-spacing: 6px; color: var(--gold); text-decoration: none; display: block; margin: 20px 0 6px; transition: color 0.2s; }
+  .contact-tel:hover { color: var(--light-gold); }
+  .contact-sub { font-size: 12px; color: var(--muted); margin-bottom: 32px; }
+  .contact-note { font-size: 13px; color: var(--muted); line-height: 2.2; padding: 20px 24px; background: var(--charcoal); border-left: 3px solid var(--red); text-align: left; }
+  .sns-area { margin-top: 44px; padding-top: 44px; border-top: 1px solid var(--charcoal); }
+  .sns-label { font-size: 12px; letter-spacing: 3px; color: var(--muted); margin-bottom: 14px; }
+  .sns-link { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gold); text-decoration: none; border: 1px solid var(--gold); padding: 12px 28px; transition: all 0.2s; }
+  .sns-link:hover { background: var(--gold); color: var(--black); }
+
+  /* フッター */
+  footer { background: var(--charcoal); padding: 28px 5vw; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--smoke); flex-wrap: wrap; gap: 12px; }
+  .footer-logo { font-family: 'Bebas Neue', cursive; font-size: 20px; letter-spacing: 2px; color: var(--gold); }
+  .footer-copy { font-size: 11px; color: var(--muted); }
+
+  /* アニメーション */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes flicker { 0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:.4} 94%{opacity:1} 96%{opacity:.6} 97%{opacity:1} }
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s, transform 0.7s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* レスポンシブ */
+  @media (max-width: 900px) {
+    .about-inner { grid-template-columns: 1fr; gap: 44px; }
+    .info-inner { grid-template-columns: 1fr; }
+    .nav-links, .nav-tel { display: none; }
+    .hamburger { display: flex; }
+  }
+  @media (max-width: 600px) {
+    section { padding: 64px 20px; }
+    .about-stats { grid-template-columns: 1fr 1fr; }
+    footer { flex-direction: column; align-items: flex-start; }
+    .info-block { padding: 32px 20px; }
+  }
+  .mobile-menu { display: none; position: fixed; inset: 0; background: rgba(14,11,8,0.98); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding-top: 60px; }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a { font-family: 'Bebas Neue', cursive; font-size: 32px; letter-spacing: 3px; color: var(--cream); text-decoration: none; transition: color 0.2s; }
+  .mobile-menu a:hover { color: var(--gold); }
+  .mobile-close { position: absolute; top: 18px; right: 22px; background: none; border: none; color: var(--muted); font-size: 26px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- ナビ -->
+<nav>
+  <a href="#hero" class="nav-logo"><span class="bolt">⚡</span> ボルトステーキ</a>
+  <ul class="nav-links">
+    <li><a href="#about">お店について</a></li>
+    <li><a href="#menu">メニュー</a></li>
+    <li><a href="#info">営業案内</a></li>
+    <li><a href="#contact">お問い合わせ</a></li>
+  </ul>
+  <a href="tel:0289775029" class="nav-tel">📞 0289-77-5029</a>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- モバイルメニュー -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="toggleMenu()">✕</button>
+  <a href="#about" onclick="toggleMenu()">お店について</a>
+  <a href="#menu" onclick="toggleMenu()">メニュー</a>
+  <a href="#info" onclick="toggleMenu()">営業案内</a>
+  <a href="#contact" onclick="toggleMenu()">お問い合わせ</a>
+  <a href="tel:0289775029" style="color:var(--gold);font-size:20px;margin-top:12px;">📞 0289-77-5029</a>
+</div>
+
+
+<!-- ============================================================
+  ★★★ お知らせ欄 ★★★  ← ここだけ編集すればOKです！
+
+  【編集方法】
+  下の「↓ここから↓」〜「↑ここまで↑」の間だけを編集してください。
+
+  【タグの色の種類】
+    tag-important  … 重要なお知らせ（オレンジ）
+    tag-hours      … 営業時間・定休日の変更（金色）
+    tag-closed     … 臨時休業（グレー）
+    tag-info       … その他のお知らせ（青）
+
+  【お知らせの追加方法】
+  下のブロックをそのままコピーして貼り付け、文字を書き換えるだけです：
+
+    <div class="notice-item">
+      <span class="notice-date">2025年〇月〇日</span>
+      <span class="notice-tag tag-closed">臨時休業</span>
+      <span class="notice-text">〇月〇日（〇）は都合により臨時休業いたします。</span>
+    </div>
+
+  【お知らせを消す方法】
+  不要な notice-item のブロックをまるごと削除してください。
+  全部消すとお知らせバナー自体が非表示になります。
+============================================================ -->
+<div id="notice-banner">
+  <div class="notice-list">
+
+    <!-- ↓ここから↓ -->
+
+    <div class="notice-item">
+      <span class="notice-tag tag-hours">営業時間</span>
+      <span class="notice-text">
+        ランチ 11:00〜15:00 ／ ディナー 17:00〜21:30　定休日：水曜日
+      </span>
+    </div>
+
+    <div class="notice-item">
+      <span class="notice-tag tag-closed">臨時休業</span>
+      <span class="notice-text">令和8年〇月〇日(〇)は都合により臨時休業いたします。ご不便をおかけして申し訳ございません。</span>
+    </div>
+
+    <!-- ↑ここまで↑ -->
+
+  </div>
+</div>
+<!-- お知らせ欄ここまで ============================================ -->
+
+
+<!-- ヒーロー -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-catch">栃木県鹿沼市の本格ステーキ店</p>
+    <h1 class="hero-title">BOLT<span class="bolt">⚡</span><br>STEAK</h1>
+    <p class="hero-sub">ボルト ステーキ</p>
+    <p class="hero-tagline">
+      鉄板でジュージュー、赤身がうまい。<br>
+      40年以上の職人が焼き上げる、本格ステーキ。
+    </p>
+    <div class="hero-btns">
+      <a href="#menu" class="btn-primary">メニューを見る</a>
+      <a href="#info" class="btn-secondary">営業案内・アクセス</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- お店について -->
+<section id="about">
+  <div class="about-inner">
+    <div class="about-text reveal">
+      <p class="sec-label">お店について</p>
+      <h2 class="sec-title">職人の火が<br>肉を変える</h2>
+      <div class="sec-divider"></div>
+      <p>
+        <strong>ボルトステーキ</strong>は、栃木県鹿沼市に構える本格ステーキレストランです。
+        40年以上のキャリアを持つ職人が、経験で培った火加減と鉄板さばきで
+        1枚の肉を極上の一皿に仕上げます。
+      </p>
+      <p>
+        アメリカ産ハンギングテンダー（ボルステ）、オーストラリア・アメリカ産サーロイン、
+        国産霜降り牛まで、素材にこだわった多彩なラインナップをご用意しています。
+      </p>
+      <p>
+        <strong>ランチはライス（お代わり自由）とコーンスープ付き。</strong>
+        テイクアウトにも対応していますので、
+        焼きたてのステーキをご自宅でもお楽しみいただけます。
+      </p>
+    </div>
+    <div class="about-stats reveal">
+      <div class="stat-card">
+        <div class="stat-num">40<span class="stat-unit">年+</span></div>
+        <div class="stat-lbl">職人経験</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">25<span class="stat-unit">席</span></div>
+        <div class="stat-lbl">ゆったり空間</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">1,000<span class="stat-unit">円〜</span></div>
+        <div class="stat-lbl">ランチメニュー</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">3<span class="stat-unit">種</span></div>
+        <div class="stat-lbl">焼き加減から選べる</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- メニュー -->
+<section id="menu">
+  <div class="menu-header reveal">
+    <p class="sec-label">メニュー</p>
+    <h2 class="sec-title">メニュー・料金</h2>
+    <div class="sec-divider"></div>
+  </div>
+  <div class="menu-tabs">
+    <button class="tab-btn active" onclick="switchTab('lunch', this)">ランチ</button>
+    <button class="tab-btn" onclick="switchTab('grand', this)">グランドメニュー</button>
+    <button class="tab-btn" onclick="switchTab('side', this)">サイドメニュー</button>
+    <button class="tab-btn" onclick="switchTab('kids', this)">お子様メニュー</button>
+    <button class="tab-btn" onclick="switchTab('takeout', this)">テイクアウト</button>
+  </div>
+
+  <!-- ランチ -->
+  <div class="menu-panel active" id="panel-lunch">
+    <div class="lunch-include">
+      <strong>ランチメニュー全品共通：</strong>ライス（お代わり自由）・コーンスープ付き　／　ランチサラダ 200円（税込・別売）
+    </div>
+    <div class="menu-cat-title">ハンバーグ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">手造りハンバーグランチ</div><div class="menu-desc">ハンバーグ 200g</div></div><div class="menu-price-wrap"><div class="menu-price">1,000円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">チキン</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">チキングリルランチ</div><div class="menu-desc">チキン 200g</div></div><div class="menu-price-wrap"><div class="menu-price">1,000円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">チキンミックスランチ</div><div class="menu-desc">チキン 100g・ハンバーグ 100g・エビフライ 1本</div></div><div class="menu-price-wrap"><div class="menu-price">1,100円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">ステーキ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">ボルステランチ</div><div class="menu-desc">ボルトステーキ 150g</div></div><div class="menu-price-wrap"><div class="menu-price">1,380円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">Bigボルステランチ</div><div class="menu-desc">ボルトステーキ 250g</div></div><div class="menu-price-wrap"><div class="menu-price">1,800円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ボルステ300gランチ</div><div class="menu-desc">ボルトステーキ 300g</div><span class="menu-tag">ガッツリ 300g</span></div><div class="menu-price-wrap"><div class="menu-price">2,700円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">カットボルランチ</div><div class="menu-desc">カットボル 150g</div></div><div class="menu-price-wrap"><div class="menu-price">1,280円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">Bigカットボルランチ</div><div class="menu-desc">カットボル 200g</div></div><div class="menu-price-wrap"><div class="menu-price">1,700円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ヒレステーキランチ</div><div class="menu-desc">ヒレ 120g</div></div><div class="menu-price-wrap"><div class="menu-price">1,800円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">厚切りサーロインランチ</div><div class="menu-desc">サーロイン 150g</div></div><div class="menu-price-wrap"><div class="menu-price">1,700円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">国産霜降り牛カットステーキランチ</div><div class="menu-desc">霜降りリブ 130g</div><span class="menu-tag">国産</span></div><div class="menu-price-wrap"><div class="menu-price">2,000円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">組み合わせ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">大喰いランチ</div><div class="menu-desc">ハンバーグ 200g・チキン 200g・メンチ 1ケ</div><span class="menu-tag">500g超え</span></div><div class="menu-price-wrap"><div class="menu-price">1,900円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ハンバーグ&チキンランチ</div><div class="menu-desc">ハンバーグ 200g・チキン 100g</div></div><div class="menu-price-wrap"><div class="menu-price">1,400円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ベーコンエッグハンバーグランチ</div><div class="menu-desc">ハンバーグ 200g</div></div><div class="menu-price-wrap"><div class="menu-price">1,300円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ハンバーグ&メンチランチ</div><div class="menu-desc">ハンバーグ 200g・メンチ 1ケ</div></div><div class="menu-price-wrap"><div class="menu-price">1,200円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ハンバーグ&カットボルランチ</div><div class="menu-desc">ハンバーグ 200g・カットボル 100g</div></div><div class="menu-price-wrap"><div class="menu-price">1,500円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ハンバーグ&国産霜降り牛カットステーキランチ</div><div class="menu-desc">ハンバーグ 200g・霜降りリブ 80g</div><span class="menu-tag">国産</span></div><div class="menu-price-wrap"><div class="menu-price">1,900円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <p class="menu-note">※表示価格は全て税込です。</p>
+  </div>
+
+  <!-- グランドメニュー -->
+  <div class="menu-panel" id="panel-grand">
+    <div class="menu-cat-title">ハンバーグ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">手造りハンバーグ</div><div class="menu-desc">ハンバーグ 200g</div></div><div class="menu-price-wrap"><div class="menu-price">1,000円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ベーコンエッグハンバーグ</div><div class="menu-desc">ハンバーグ 200g</div></div><div class="menu-price-wrap"><div class="menu-price">1,300円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ハンバーグ&メンチ</div><div class="menu-desc">ハンバーグ 200g・メンチ 100g</div></div><div class="menu-price-wrap"><div class="menu-price">1,200円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ハンバーグ&チキン</div><div class="menu-desc">ハンバーグ 200g・チキン 100g</div></div><div class="menu-price-wrap"><div class="menu-price">1,400円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ハンバーグ&カットボル</div><div class="menu-desc">ハンバーグ 200g・カットボル 100g</div></div><div class="menu-price-wrap"><div class="menu-price">1,500円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ハンバーグ&カットヒレ</div><div class="menu-desc">ハンバーグ 200g・カットヒレ 90g</div></div><div class="menu-price-wrap"><div class="menu-price">1,700円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">セレブハンバーグ</div><div class="menu-desc">ハンバーグ 200g・霜降りリブ 80g</div></div><div class="menu-price-wrap"><div class="menu-price">2,200円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">メガハンバーグ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">"ボルバーグ"ポンド</div><div class="menu-desc">ボルステ 250g・ハンバーグ 200g</div></div><div class="menu-price-wrap"><div class="menu-price">3,200円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">メガハンチキ</div><div class="menu-desc">ハンバーグ 200g・チキン 200g・メンチ 100g</div></div><div class="menu-price-wrap"><div class="menu-price">2,200円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">メガハンバーグ</div><div class="menu-desc">ハンバーグ 200g×2</div></div><div class="menu-price-wrap"><div class="menu-price">1,900円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">チキン</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">チキングリル</div><div class="menu-desc">チキン 200g</div></div><div class="menu-price-wrap"><div class="menu-price">1,000円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">本格ステーキ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">サーロインステーキ 200g</div><div class="menu-desc">オーストラリア・アメリカ産</div></div><div class="menu-price-wrap"><div class="menu-price">2,500円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">サーロインステーキ 300g</div><div class="menu-desc">オーストラリア・アメリカ産</div></div><div class="menu-price-wrap"><div class="menu-price">3,500円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ヒレステーキ 150g</div><div class="menu-desc">オーストラリア産</div></div><div class="menu-price-wrap"><div class="menu-price">2,300円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ヒレステーキ 200g</div><div class="menu-desc">オーストラリア産</div></div><div class="menu-price-wrap"><div class="menu-price">2,900円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">シャトーブリアン 200g</div><div class="menu-desc">最高部位のヒレ肉</div></div><div class="menu-price-wrap"><div class="menu-price">3,500円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">グラム指定ステーキ（50gごとに注文できます）</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">サーロイン 200g〜</div><div class="menu-desc">50g増しごとに +500円</div></div><div class="menu-price-wrap"><div class="menu-price">2,500円〜</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ヒレ 150g〜</div><div class="menu-desc">50g増しごとに +600円</div></div><div class="menu-price-wrap"><div class="menu-price">2,300円〜</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">国産霜降り牛</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">霜降りロースステーキ 200g</div><div class="menu-desc">50g増しごとに +800円</div><span class="menu-tag">国産</span></div><div class="menu-price-wrap"><div class="menu-price">3,700円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">霜降りロースステーキ 250g</div><span class="menu-tag">国産</span></div><div class="menu-price-wrap"><div class="menu-price">4,500円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">ボルトステーキ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">"ボルステ" 150g</div><div class="menu-desc">アメリカ産ハンギングテンダー</div></div><div class="menu-price-wrap"><div class="menu-price">1,380円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">"Bigボルステ" 200g</div></div><div class="menu-price-wrap"><div class="menu-price">1,800円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">"ボルステ" 300g</div></div><div class="menu-price-wrap"><div class="menu-price">2,700円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">カットボル 150g</div></div><div class="menu-price-wrap"><div class="menu-price">1,380円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">Bigカットボル 200g</div></div><div class="menu-price-wrap"><div class="menu-price">1,800円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">カットボル 300g</div></div><div class="menu-price-wrap"><div class="menu-price">2,700円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">サーロインとヒレのダブルステーキ</div><div class="menu-desc">サーロイン 150g・ヒレ 100g</div></div><div class="menu-price-wrap"><div class="menu-price">3,200円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">大盛り・ポンドステーキ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">"ボルステ"ポンド</div><div class="menu-desc">ボルステ 450g</div></div><div class="menu-price-wrap"><div class="menu-price">3,900円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">"サーロイン"ポンド</div><div class="menu-desc">サーロイン 450g</div></div><div class="menu-price-wrap"><div class="menu-price">5,000円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">"カットボル"ポンド</div><div class="menu-desc">カットボル 450g</div></div><div class="menu-price-wrap"><div class="menu-price">3,900円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">"ボルチキン"ポンド</div><div class="menu-desc">ボルステ 250g・チキン 200g</div></div><div class="menu-price-wrap"><div class="menu-price">3,200円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">グリル</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">ミックスグリル</div><div class="menu-desc">ハンバーグ 100g・チキン 80g・エビ 1尾</div></div><div class="menu-price-wrap"><div class="menu-price">1,500円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">エビグリル</div><div class="menu-desc">エビ 3尾</div></div><div class="menu-price-wrap"><div class="menu-price">1,800円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">ライス・サラダ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">ライスセット</div><div class="menu-desc">ライス・サラダ・コーンスープ（ライスお代わり自由）</div></div><div class="menu-price-wrap"><div class="menu-price">450円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ライス</div><div class="menu-desc">お代わり自由</div></div><div class="menu-price-wrap"><div class="menu-price">250円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ミニサラダ</div></div><div class="menu-price-wrap"><div class="menu-price">220円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <p class="menu-note">※表示価格は全て税込です。写真はイメージです。付け合わせは変更になる場合がございます。</p>
+  </div>
+
+  <!-- サイドメニュー -->
+  <div class="menu-panel" id="panel-side">
+    <div class="menu-cat-title">サラダ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">グリーンサラダ</div></div><div class="menu-price-wrap"><div class="menu-price">580円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">シーザーサラダ</div></div><div class="menu-price-wrap"><div class="menu-price">680円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">おつまみ</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">鉄板コーンバター</div></div><div class="menu-price-wrap"><div class="menu-price">400円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">自家製もつ煮</div></div><div class="menu-price-wrap"><div class="menu-price">480円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">ポテトフライ</div></div><div class="menu-price-wrap"><div class="menu-price">480円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">自家製燻製チーズ</div></div><div class="menu-price-wrap"><div class="menu-price">580円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">オニオンリングフライ</div></div><div class="menu-price-wrap"><div class="menu-price">580円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">チョリソー</div></div><div class="menu-price-wrap"><div class="menu-price">580円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">豚ガツポン酢</div></div><div class="menu-price-wrap"><div class="menu-price">580円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">豚バラチャーシュー</div></div><div class="menu-price-wrap"><div class="menu-price">780円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <p class="menu-note">※表示価格は全て税込です。</p>
+  </div>
+
+  <!-- お子様メニュー -->
+  <div class="menu-panel" id="panel-kids">
+    <div class="menu-cat-title">お子様メニュー</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">お子様ランチ</div></div><div class="menu-price-wrap"><div class="menu-price">500円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">お子様ハンバーグ</div></div><div class="menu-price-wrap"><div class="menu-price">600円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">お子様ステーキ</div></div><div class="menu-price-wrap"><div class="menu-price">700円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <div class="menu-cat-title">お子様ドリンク</div>
+    <div class="menu-grid">
+      <div class="menu-card"><div><div class="menu-name">お子様オレンジジュース</div></div><div class="menu-price-wrap"><div class="menu-price">100円</div><span class="tax-label">税込</span></div></div>
+      <div class="menu-card"><div><div class="menu-name">お子様リンゴジュース</div></div><div class="menu-price-wrap"><div class="menu-price">100円</div><span class="tax-label">税込</span></div></div>
+    </div>
+    <p class="menu-note">※表示価格は全て税込です。</p>
+  </div>
+
+  <!-- テイクアウト -->
+  <div class="menu-panel" id="panel-takeout">
+    <div class="lunch-include">
+      <strong>テイクアウトについて：</strong>グランドメニューから全品テイクアウト可能（ランチメニューは対象外）<br>
+      配達は行っておりません。<strong>店頭受取のみ</strong>となります。
+    </div>
+    <div class="menu-cat-title">テイクアウト限定</div>
+    <div class="menu-grid">
+      <div class="menu-card">
+        <div>
+          <div class="menu-name">ステーキ弁当</div>
+          <div class="menu-desc">お肉120g・ご飯200g・追いダレ付き<br>ポテト・ブロッコリー付き／ご注文後に焼き上げます</div>
+        </div>
+        <div class="menu-price-wrap"><div class="menu-price">1,000円</div><span class="tax-label">税込</span></div>
+      </div>
+    </div>
+    <div class="menu-cat-title">ご注文方法</div>
+    <div style="background:var(--charcoal); padding:28px 24px; max-width:480px;">
+      <p style="font-size:14px; color:var(--muted); line-height:2; margin-bottom:12px;">お電話にてご注文ください。配達は行っておりません。店頭受取のみとなります。</p>
+      <a href="tel:0289775029" style="font-family:'Bebas Neue'; font-size:34px; color:var(--gold); text-decoration:none; letter-spacing:2px; display:block;">📞 0289-77-5029</a>
+    </div>
+    <p class="menu-note">※表示価格は全て税込です。</p>
+  </div>
+</section>
+
+
+<!-- 営業案内・アクセス -->
+<section id="info">
+  <div style="max-width:1100px; margin: 0 auto 48px;">
+    <p class="sec-label reveal">営業案内・アクセス</p>
+    <h2 class="sec-title reveal">営業案内・アクセス</h2>
+    <div class="sec-divider reveal"></div>
+  </div>
+  <div class="info-inner reveal">
+    <div class="info-block">
+      <div class="info-block-title">店舗情報</div>
+      <div class="info-row">
+        <span class="info-label">店名</span>
+        <span class="info-value">ボルトステーキ</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">住所</span>
+        <span class="info-value">〒322-0002<br>栃木県鹿沼市千渡2299-2<br>グレースコーポ 1F</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">電話</span>
+        <span class="info-value"><a href="tel:0289775029">0289-77-5029</a></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">営業時間</span>
+        <span class="info-value">
+          ランチ：11:00〜15:00<br>
+          ディナー：17:00〜21:30<br>
+          <small style="font-size:11px; color:var(--muted);">※変更の場合はページ上部のお知らせをご確認ください</small>
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">定休日</span>
+        <span class="info-value">
+          <span class="closed">水曜日</span><br>
+          <small style="font-size:11px; color:var(--muted);">※臨時休業はページ上部のお知らせをご確認ください</small>
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">席数</span>
+        <span class="info-value">25席</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">テイクアウト</span>
+        <span class="info-value">対応あり（店頭受取のみ）</span>
+      </div>
+    </div>
+    <div class="map-wrap" style="display:flex; flex-direction:column;">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3204.6167273647566!2d139.7822002!3d36.56335329999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x601f6900082522af%3A0xf4e19801654278cc!2zQk9MVCBTVEVBSyAo44Oc44Or44OI44K544OG44O844KtKQ!5e0!3m2!1sja!2sjp!4v1774572799657!5m2!1sja!2sjp"
+        style="flex:1; min-height:280px;" width="600" height="450"
+        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="ボルトステーキ 地図">
+      </iframe>
+      <div class="map-footer">
+        📍 栃木県鹿沼市千渡2299-2 グレースコーポ1F　
+        <a href="https://maps.google.com/?q=栃木県鹿沼市千渡2299-2+グレースコーポ" target="_blank" rel="noopener">Googleマップで開く →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- お問い合わせ -->
+<section id="contact">
+  <div class="contact-inner reveal">
+    <p class="sec-label">ご予約・お問い合わせ</p>
+    <h2 class="sec-title">お問い合わせ</h2>
+    <div class="sec-divider" style="margin:12px auto 28px;"></div>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:6px;">ご予約・お問い合わせはお電話にて承っております</p>
+    <a href="tel:0289775029" class="contact-tel">0289-77-5029</a>
+    <p class="contact-sub">営業時間内にお気軽にどうぞ</p>
+    <div class="contact-note">
+      📞 <strong>お電話のみ</strong>でご予約を承っております。<br>
+      営業時間：ランチ 11:00〜15:00 ／ ディナー 17:00〜21:30<br>
+      定休日：<strong style="color:var(--red);">水曜日</strong><br>
+      <span style="font-size:11px; color:var(--muted);">※臨時休業など最新情報はページ上部のお知らせをご確認ください。</span>
+    </div>
+    <div class="sns-area">
+      <p class="sns-label">公式 Instagram</p>
+      <a href="https://www.instagram.com/boltsteak?igsh=MjVueW4yYmZ6ajgy&utm_source=qr" target="_blank" rel="noopener" class="sns-link" id="snsLink">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        Instagram を見る
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- フッター -->
+<footer>
+  <div class="footer-logo">⚡ ボルトステーキ</div>
+  <p class="footer-copy">© 2025 BOLT STEAK. All rights reserved.</p>
+</footer>
+
+<script>
+  /* ===== 炎・煙・鉄板アニメーション ===== */
+  (function() {
+    const canvas = document.getElementById('hero-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+      W = canvas.width  = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    /* 鉄板グリッド線 */
+    function drawGrill() {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(180, 80, 10, 0.18)';
+      ctx.lineWidth = 2.5;
+      const spacing = 36;
+      const offset = (Date.now() / 80) % spacing;
+      // 縦縞
+      for (let x = -spacing + (offset % spacing); x < W + spacing; x += spacing) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + H * 0.15, H); ctx.stroke();
+      }
+      // 横縞
+      for (let y = 0; y < H + spacing; y += spacing) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    /* パーティクル種別: flame / ember / smoke */
+    function spawnParticle() {
+      const x = Math.random() * W;
+      const type = Math.random() < 0.55 ? 'flame' : Math.random() < 0.7 ? 'ember' : 'smoke';
+      if (type === 'flame') {
+        particles.push({
+          type, x, y: H + 10,
+          vx: (Math.random() - 0.5) * 1.2,
+          vy: -(1.8 + Math.random() * 3.2),
+          size: 14 + Math.random() * 28,
+          life: 1, decay: 0.008 + Math.random() * 0.012,
+          hue: 10 + Math.random() * 30
+        });
+      } else if (type === 'ember') {
+        particles.push({
+          type, x, y: H - Math.random() * 60,
+          vx: (Math.random() - 0.5) * 2.5,
+          vy: -(1.0 + Math.random() * 2.0),
+          size: 2 + Math.random() * 3,
+          life: 1, decay: 0.018 + Math.random() * 0.02
+        });
+      } else {
+        particles.push({
+          type, x, y: H - 40 - Math.random() * 80,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: -(0.4 + Math.random() * 0.8),
+          size: 20 + Math.random() * 50,
+          life: 0.5 + Math.random() * 0.3,
+          decay: 0.004 + Math.random() * 0.006
+        });
+      }
+    }
+
+    function drawParticle(p) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.life) * (p.type === 'smoke' ? 0.12 : 0.85);
+      if (p.type === 'flame') {
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+        grad.addColorStop(0,   `hsla(${p.hue + 30}, 100%, 90%, 1)`);
+        grad.addColorStop(0.3, `hsla(${p.hue + 10}, 100%, 60%, 1)`);
+        grad.addColorStop(0.7, `hsla(${p.hue},      90%,  35%, 0.8)`);
+        grad.addColorStop(1,   'transparent');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, p.size * 0.55, p.size, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.type === 'ember') {
+        ctx.fillStyle = `hsl(${20 + Math.random()*20}, 100%, ${60 + Math.random()*30}%)`;
+        ctx.shadowColor = '#ff6a00';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+        grad.addColorStop(0, 'rgba(160,120,80,0.3)');
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    /* 熱気のゆらぎ（底部グロー） */
+    function drawHeatGlow() {
+      const grad = ctx.createLinearGradient(0, H * 0.6, 0, H);
+      grad.addColorStop(0, 'transparent');
+      grad.addColorStop(0.6, 'rgba(180, 60, 5, 0.10)');
+      grad.addColorStop(1,   'rgba(220, 90, 10, 0.22)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    let lastSpawn = 0;
+    function loop(ts) {
+      ctx.clearRect(0, 0, W, H);
+
+      // 暗い背景
+      ctx.fillStyle = '#100a05';
+      ctx.fillRect(0, 0, W, H);
+
+      drawGrill();
+      drawHeatGlow();
+
+      // スポーン間隔
+      if (ts - lastSpawn > 28) { spawnParticle(); lastSpawn = ts; }
+
+      // 更新・描画
+      particles = particles.filter(p => p.life > 0);
+      for (const p of particles) {
+        p.x  += p.vx + Math.sin(ts * 0.001 + p.y * 0.02) * 0.4;
+        p.y  += p.vy;
+        p.vy *= 0.993;
+        p.life -= p.decay;
+        drawParticle(p);
+      }
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  })();
+
+  /* ===== タブ切り替え ===== */
+  function switchTab(id, btn) {
+    document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+  function toggleMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
